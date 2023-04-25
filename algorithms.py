@@ -11,7 +11,64 @@ def h(p1, p2):
 # A* Algorithm
 def astar_algorithm(draw, grid, start, end, reconstruct_path):
     #needs to understand astar here 
-    return 
+    count = 0
+    open_set = PriorityQueue()
+
+    # tuple, or contains three items: f_score, count, node
+    # f_score: used for priority, lower score means lower priority (less weight)
+    # count: to keep count for stable (if they have the same f_score then go for lowest count)
+    # node: the node object being stored
+    open_set.put((0, count, start))
+
+    came_from = {}
+    g_score = {spot: float("inf") for row in grid for spot in row}
+    g_score[start] = 0
+    f_score = {spot: float("inf") for row in grid for spot in row}
+    f_score[start] = h(start.get_pos(), end.get_pos())
+
+    open_set_hash = {start}
+
+    while not open_set.empty():
+
+        # take the current node from the priority queue
+        current = open_set.get()[2]
+        open_set_hash.remove(current)
+
+        if current == end:
+            reconstruct_path(came_from, end, draw)
+            end.make_end()  # change color of ending node
+            return True
+
+        # ALGO STARTS HERE
+        # iterate through neigbors of current node
+        for neighbor in current.neighbors:
+            temp_g_score = g_score[current] + 1
+
+            # if the temp_g_score (g_score of curr + 1) is bigger than g_score of neighbor
+            if temp_g_score < g_score[neighbor]:
+                # current -> neighbor
+                # neighbor camefrom current
+                came_from[neighbor] = current
+
+                # updating the scores of 2 nodes, replacing it with less
+                # Example:
+                # if A -> B: 4 g_score
+                # but A -> C -> B: 2 g_score
+                # then A -> B = 2 g_score
+                g_score[neighbor] = temp_g_score
+                f_score[neighbor] = temp_g_score + h(neighbor.get_pos(), end.get_pos())
+                if neighbor not in open_set_hash:
+                    count += 1
+                    open_set.put((f_score[neighbor], count, neighbor))
+                    open_set_hash.add(neighbor)
+                    neighbor.make_open()  # change color indicating its open to explore
+
+        draw()
+
+        if current != start:
+            current.make_closed()  # change color indicating its closed (explorED)
+
+    return False
 	
 
 # Dijkstra's Algorithm
