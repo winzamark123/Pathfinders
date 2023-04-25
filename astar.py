@@ -195,7 +195,7 @@ def main(win, width):
                         for spot in row:
                             spot.update_neighbors(grid)
 
-                    astar_algorithm(
+                    dfs_algorithm(
                         lambda: draw(win, grid, ROWS, width),
                         grid,
                         start,
